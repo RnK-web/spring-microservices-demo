@@ -10,3 +10,11 @@ services:
       - "27017:27017"
     volumes:
       - ./data:/data/db
+
+  postgres:
+    image: postgres:18.1-alpine3.23
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: inventory-service
