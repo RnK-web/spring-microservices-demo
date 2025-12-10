@@ -5,12 +5,12 @@ on:
   push:
     branches: [ "main" ]
     paths:
-      - "microservicetest/${{ env.SERVICE }}/**"
+      - "microservicetest/$SERVICE/**"
     
   pull_request:
     branches: [ "main" ]
     paths:
-      - "microservicetest/${{ env.SERVICE }}/**"
+      - "microservicetest/$SERVICE/**"
 jobs:
   build:
 
