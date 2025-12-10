@@ -1,6 +1,6 @@
 name: Workflow for product service
 env:
-  SERVICE: product-service
+  SERVICE: ProductService
 on:
   push:
     branches: [ "main" ]
