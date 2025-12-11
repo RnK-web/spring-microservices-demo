@@ -5,12 +5,12 @@ on:
   push:
     branches: [ "main" ]
     paths:
-      - "microservicetest/$SERVICE/**"
+      - "ApiGateway/**"
     
   pull_request:
     branches: [ "main" ]
     paths:
-      - "microservicetest/$SERVICE/**"
+      - "ApiGateway/**"
 jobs:
   build:
 
