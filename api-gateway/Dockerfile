@@ -1,7 +1,7 @@
 FROM eclipse-temurin:21-alpine AS build
 WORKDIR /app
 COPY . /app/api-gateway-service
-RUN cd api-gateway-service && ./mvnw -Dmaven.test.skip=true clean package
+RUN cd api-gateway-service && chmod +x mvnw && ./mvnw -Dmaven.test.skip=true clean package
 
 FROM eclipse-temurin:21-jre-alpine
 
