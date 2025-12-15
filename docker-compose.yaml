@@ -1,4 +1,38 @@
 services:
+  db-product:
+    image: mongo
+    container_name: db-product
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin
+      MONGO_INITDB_DATABASE: product-service
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./product-service/data:/data/db
+
+  db-order:
+    image: mysql:9.5.0
+    container_name: db-order
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: order-service
+    volumes:
+      - ./order-service/data:/data/db
+
+  db-inventory:
+    image: mysql:9.5.0
+    container_name: db-inventory
+    ports:
+      - "3316:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: inventory-service
+    volumes:
+      - ./inventory-service/data:/data/db
+
   broker:
     image: apache/kafka:latest
     hostname: broker
