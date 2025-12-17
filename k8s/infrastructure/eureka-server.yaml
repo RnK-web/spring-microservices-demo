@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: title
+  labels:
+    app: title
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: title
+  template:
+    metadata:
+      name: title
+      labels:
+        app: title
+    spec:
+      containers:
+        - name: title
+          image: rnk7/eureka-server:latest
+          ports:
+            - containerPort: 8761
+              protocol: TCP
+      restartPolicy: Always
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: title
+spec:
+  selector:
+    app: title
+  ports:
+    - protocol: TCP
+      port: 8761
+      targetPort: 8761
+  type: ClusterIP

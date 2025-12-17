@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db-inventory
+  labels:
+    app: db-inventory
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db-inventory
+  template:
+    metadata:
+      name: db-inventory
+      labels:
+        app: db-inventory
+    spec:
+      containers:
+        - name: db-inventory
+          image: mysql:9.5.0
+          ports:
+            - containerPort: 3306
+              protocol: TCP
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-inventory-secrets
+                  key: root-pwd
+            - name: MYSQL_DATABASE
+              value: inventory-service
+          volumeMounts:
+            - name: db-inventory-persistent-storage
+              mountPath: /data/db
+      volumes:
+        - name: db-inventory-persistent-storage
+          persistentVolumeClaim:
+            claimName: db-inventory-pvc
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-inventory
+spec:
+  selector:
+    app: db-inventory
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
+  type: ClusterIP
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: db-inventory-pvc
+  labels:
+    app: db-inventory
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
+
+---
+
+apiVersion: v1
+data:
+  root-pwd: YWRtaW4=
+kind: Secret
+metadata:
+  name: db-inventory-secrets

@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: product-service
+  labels:
+    app: product-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: product-service
+  template:
+    metadata:
+      name: product-service
+      labels:
+        app: product-service
+    spec:
+      containers:
+        - name: product-service
+          image: rnk7/product-service:latest
+          ports:
+            - containerPort: 8083
+              protocol: TCP
+          env:
+            - name: DATASOURCE_URI
+              valueFrom:
+                configMapKeyRef:
+                  key: DATASOURCE_URI
+                  name: product-config
+      restartPolicy: Always
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: product-service
+spec:
+  selector:
+    app: product-service
+  ports:
+    - protocol: TCP
+      port: 8083
+      targetPort: 8083
+  type: ClusterIP
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: product-config
+data:
+  DATASOURCE_URI: mongodb://admin:admin@db-product:27017/product-service?authSource=admin

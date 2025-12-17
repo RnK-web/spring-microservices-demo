@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db-order
+  labels:
+    app: db-order
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db-order
+  template:
+    metadata:
+      name: db-order
+      labels:
+        app: db-order
+    spec:
+      containers:
+        - name: db-order
+          image: mysql:9.5.0
+          ports:
+            - containerPort: 3306
+              protocol: TCP
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-order-secrets
+                  key: root-pwd
+            - name: MYSQL_DATABASE
+              value: order-service
+          volumeMounts:
+            - name: db-order-persistent-storage
+              mountPath: /data/db
+      volumes:
+        - name: db-order-persistent-storage
+          persistentVolumeClaim:
+            claimName: db-order-pvc
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-order
+spec:
+  selector:
+    app: db-order
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
+  type: ClusterIP
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: db-order-pvc
+  labels:
+    app: db-order
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
+
+---
+
+apiVersion: v1
+data:
+  root-pwd: YWRtaW4=
+kind: Secret
+metadata:
+  name: db-order-secrets

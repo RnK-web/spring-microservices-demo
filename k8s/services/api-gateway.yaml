@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  labels:
+    app: api-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      name: api-gateway
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+        - name: api-gateway
+          image: rnk7/api-gateway:latest
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          env:
+            - name: INVENTORY_SERVICE_URI
+              valueFrom:
+                configMapKeyRef:
+                  key: INVENTORY_SERVICE_URI
+                  name: common-config
+            - name: ORDER_SERVICE_URI
+              valueFrom:
+                configMapKeyRef:
+                  key: ORDER_SERVICE_URI
+                  name: common-config
+            - name: PRODUCT_SERVICE_URI
+              valueFrom:
+                configMapKeyRef:
+                  key: PRODUCT_SERVICE_URI
+                  name: common-config
+      restartPolicy: Always
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway
+spec:
+  selector:
+    app: api-gateway
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP

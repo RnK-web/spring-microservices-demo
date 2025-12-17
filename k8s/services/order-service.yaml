@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-service
+  labels:
+    app: order-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order-service
+  template:
+    metadata:
+      name: order-service
+      labels:
+        app: order-service
+    spec:
+      containers:
+        - name: order-service
+          image: rnk7/order-service:latest
+          ports:
+            - containerPort: 8082
+              protocol: TCP
+          env:
+            - name: KAFKA_BOOTSTRAP
+              valueFrom:
+                configMapKeyRef:
+                  key: KAFKA_BOOTSTRAP
+                  name: common-config
+            - name: INVENTORY_SERVICE_URI
+              valueFrom:
+                configMapKeyRef:
+                  key: INVENTORY_SERVICE_URI
+                  name: common-config
+            - name: DATASOURCE_URI
+              valueFrom:
+                configMapKeyRef:
+                  key: DATASOURCE_URI
+                  name: order-config
+      restartPolicy: Always
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-service
+spec:
+  selector:
+    app: order-service
+  ports:
+    - protocol: TCP
+      port: 8082
+      targetPort: 8082
+  type: ClusterIP
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: order-config
+data:
+  DATASOURCE_URI: jdbc:mysql://db-order:3306/order-service

@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inventory-service
+  labels:
+    app: inventory-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: inventory-service
+  template:
+    metadata:
+      name: inventory-service
+      labels:
+        app: inventory-service
+    spec:
+      containers:
+        - name: inventory-service
+          image: rnk7/inventory-service:latest
+          ports:
+            - containerPort: 8081
+              protocol: TCP
+          env:
+            - name: DATASOURCE_URI
+              valueFrom:
+                configMapKeyRef:
+                  key: DATASOURCE_URI
+                  name: inventory-config
+      restartPolicy: Always
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: inventory-service
+spec:
+  selector:
+    app: inventory-service
+  ports:
+    - protocol: TCP
+      port: 8081
+      targetPort: 8081
+  type: ClusterIP
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: inventory-config
+data:
+  DATASOURCE_URI: jdbc:mysql://db-inventory:3306/inventory-service
+
